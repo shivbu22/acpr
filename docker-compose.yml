@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # 1. ACPR Web Application
+  acpr-app:
+    build: .
+    container_name: acpr-supertool
+    restart: unless-stopped
+    ports:
+      - "3333:3333"
+    networks:
+      - acpr-network
+    depends_on:
+      - ollama
+
+  # 2. Local LLM Engine (Ollama with OpenAI-compatible API)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: acpr-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    environment:
+      # Crucial: Allow browser fetch requests from ACPR
+      - OLLAMA_ORIGINS=*
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_KEEP_ALIVE=24h
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - acpr-network
+    # To enable NVIDIA GPU acceleration on Windows/Linux, uncomment:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+networks:
+  acpr-network:
+    driver: bridge
+
+volumes:
+  ollama_models:
+    name: acpr_ollama_models

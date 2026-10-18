@@ -1,0 +1,380 @@
+/**
+ * ACPR Resume Print & Preview Stylesheet
+ * Standardized A4 / US Letter sheet with high-fidelity vector print engine
+ */
+
+:root {
+  --primary-color: #0284c7;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-light: #64748b;
+  --border-color: #cbd5e1;
+  --base-font-size: 9.5pt;
+  --line-height: 1.45;
+  --page-margin: 14mm;
+}
+
+/* ================= A4 Sheet Container ================= */
+.resume-sheet {
+  width: 210mm;
+  min-height: 297mm;
+  padding: var(--page-margin);
+  background: #ffffff;
+  color: var(--text-main);
+  box-sizing: border-box;
+  font-size: var(--base-font-size);
+  line-height: var(--line-height);
+  position: relative;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  margin: 0 auto;
+  transition: all 0.2s ease;
+}
+
+/* Print Rules - Zero Margin & Pure Vector Fidelity */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  html, body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 210mm !important;
+  }
+  .app-header, .app-editor, .preview-toolbar, .no-print, .toast-container {
+    display: none !important;
+  }
+  .app-preview-pane {
+    padding: 0 !important;
+    background: white !important;
+    overflow: visible !important;
+  }
+  .preview-wrapper {
+    transform: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .resume-sheet {
+    box-shadow: none !important;
+    margin: 0 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    padding: var(--page-margin) !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  .entry-item, .skill-category, .pub-item {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* ================= Header ================= */
+.resume-header {
+  margin-bottom: 3.5mm;
+  border-bottom: 1.5pt solid var(--primary-color);
+  padding-bottom: 2.5mm;
+}
+
+.header-name {
+  font-size: 19pt;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0 0 1mm 0;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.header-title {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin: 0 0 2mm 0;
+}
+
+.header-contacts {
+  font-size: 8.5pt;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.8mm 3mm;
+  align-items: center;
+}
+
+.header-contacts a {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.header-contacts a:hover {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.header-contacts .sep {
+  color: #cbd5e1;
+}
+
+/* ================= Section Generic ================= */
+.resume-section {
+  margin-bottom: 3.5mm;
+}
+
+.section-title {
+  font-size: 10.5pt;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 2mm 0;
+  padding-bottom: 0.8mm;
+  border-bottom: 0.8pt solid #e2e8f0;
+  display: flex;
+  align-items: center;
+}
+
+.summary-text {
+  font-size: 9pt;
+  color: var(--text-muted);
+  line-height: 1.45;
+  text-align: justify;
+}
+
+/* ================= Entry Items ================= */
+.entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5mm;
+}
+
+.entry-item {
+  break-inside: avoid;
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.8mm;
+}
+
+.entry-main {
+  font-size: 9.5pt;
+}
+
+.entry-title {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.entry-subtitle {
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.entry-meta {
+  font-size: 8.5pt;
+  color: var(--text-light);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.entry-date {
+  font-weight: 500;
+}
+
+.entry-location {
+  margin-left: 2mm;
+  font-style: italic;
+}
+
+.entry-score {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-left: 2mm;
+}
+
+.entry-summary {
+  font-size: 8.8pt;
+  color: var(--text-muted);
+  margin: 0.8mm 0 1.2mm 0;
+  line-height: 1.35;
+}
+
+.entry-highlights {
+  margin: 0.8mm 0 0 4mm;
+  padding: 0;
+  font-size: 8.8pt;
+  color: var(--text-muted);
+  line-height: 1.38;
+}
+
+.entry-highlights li {
+  margin-bottom: 0.8mm;
+}
+
+.entry-tags {
+  display: flex;
+  gap: 1.5mm;
+  flex-wrap: wrap;
+}
+
+.tag-pill {
+  font-size: 7.5pt;
+  padding: 0.5mm 1.8mm;
+  background: #f1f5f9;
+  color: #334155;
+  border-radius: 2mm;
+  font-weight: 500;
+}
+
+.entry-courses {
+  font-size: 8.5pt;
+  color: var(--text-light);
+  margin-top: 1mm;
+}
+
+/* ================= Skills ================= */
+.skills-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2mm;
+  font-size: 9pt;
+}
+
+.skill-category {
+  display: flex;
+  gap: 2mm;
+}
+
+.skill-name {
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 42mm;
+}
+
+.skill-tags {
+  color: var(--text-muted);
+  flex: 1;
+}
+
+/* ================= Publications ================= */
+.pub-item {
+  font-size: 8.8pt;
+}
+
+.pub-title {
+  color: var(--text-main);
+}
+
+.pub-meta {
+  color: var(--text-muted);
+  font-size: 8.3pt;
+  margin-top: 0.4mm;
+}
+
+.pub-doi a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.pub-summary {
+  font-size: 8.3pt;
+  color: var(--text-light);
+  margin: 0.8mm 0 0 0;
+}
+
+/* ================= Certifications & Awards ================= */
+.cert-list, .awards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2mm;
+  font-size: 8.8pt;
+}
+
+.award-summary {
+  font-size: 8.3pt;
+  color: var(--text-light);
+  margin: 0.4mm 0 0 2mm;
+}
+
+/* ==========================================================================
+   THEMES: Modern, Classic Serif, Academic, Minimalist Nordic, Creative Split
+   ========================================================================== */
+
+/* 1. Classic Executive Serif */
+.theme-classic {
+  font-family: 'Merriweather', Georgia, serif !important;
+}
+.theme-classic .resume-header {
+  text-align: center;
+  border-bottom: 1pt solid #0f172a;
+}
+.theme-classic .header-name {
+  font-size: 20pt;
+  letter-spacing: 0.02em;
+}
+.theme-classic .header-contacts {
+  justify-content: center;
+}
+.theme-classic .section-title {
+  border-bottom: 0.8pt solid #0f172a;
+  color: #0f172a;
+  font-size: 10pt;
+  letter-spacing: 0.08em;
+}
+
+/* 2. Academic Scholarly */
+.theme-academic {
+  font-family: 'Lora', 'Merriweather', serif !important;
+}
+.theme-academic .header-name {
+  font-size: 17pt;
+}
+.theme-academic .section-title {
+  border-bottom: 1pt solid #334155;
+  color: #1e293b;
+  font-size: 10pt;
+}
+.theme-academic .pub-item {
+  padding-left: 3mm;
+  border-left: 2pt solid var(--primary-color);
+}
+
+/* 3. Minimalist Nordic (visiky style) */
+.theme-minimal {
+  font-family: 'Inter', -apple-system, sans-serif !important;
+  color: #111111;
+}
+.theme-minimal .resume-header {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.theme-minimal .header-title {
+  color: #666666;
+}
+.theme-minimal .section-title {
+  border-bottom: 0.5pt solid #dddddd;
+  color: #111111;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 11pt;
+}
+.theme-minimal .tag-pill {
+  background: transparent;
+  border: 0.5pt solid #cccccc;
+}
+
+/* 4. Creative Split (oh-my-cv / reactive-resume) */
+.theme-creative .header-name {
+  color: var(--primary-color);
+}
+.theme-creative .section-title {
+  background: #f8fafc;
+  padding: 1mm 2mm;
+  border-left: 3pt solid var(--primary-color);
+  border-bottom: none;
+  border-radius: 1mm;
+}

@@ -1,0 +1,22 @@
+{
+  "name": "acpr-supertool",
+  "version": "1.0.0",
+  "description": "ACPR: All-in-One Career Profile & Resume Supertool combining 14 open-source CV/resume engines",
+  "main": "serve.js",
+  "scripts": {
+    "start": "node serve.js"
+  },
+  "keywords": [
+    "resume",
+    "cv",
+    "ats-matcher",
+    "resume-as-code",
+    "latex",
+    "markdown",
+    "yaml",
+    "portfolio",
+    "academic-cv"
+  ],
+  "author": "Antigravity",
+  "license": "MIT"
+}

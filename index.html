@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACPR — All-in-One Career Profile & Resume Supertool</title>
+  <meta name="description" content="ACPR combines 14 open-source CV engines: Interactive Form Builder, Drag & Drop Sections, Resume-as-Code (YAML/Markdown), ATS Keyword Matcher, AI Bullet Enhancer, Academic BibTeX CV, and Web Portfolio.">
+  
+  <!-- Modern Curated Fonts (Outfit Display, Plus Jakarta Sans Body, JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/preview.css">
+  <link rel="stylesheet" href="css/portfolio.css">
+
+  <!-- Document Parsing Libraries (Client-side PDF & DOCX text extraction) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+
+  <!-- ================= App Header ================= -->
+  <header class="app-header">
+    <div class="brand-wrapper">
+      <div class="brand-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        <span>ACPR</span>
+      </div>
+      <span class="brand-badge">14-in-1 Supertool</span>
+    </div>
+
+    <!-- Header Actions -->
+    <div class="header-actions">
+      <!-- Mode Toggle: Print Resume vs Web Portfolio -->
+      <div class="btn-pill-toggle">
+        <button type="button" id="mode-resume-btn" class="pill-option active" title="A4 Print & Vector PDF Mode">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          <span>Resume</span>
+        </button>
+        <button type="button" id="mode-portfolio-btn" class="pill-option" title="Interactive Web Portfolio Website">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>Portfolio</span>
+        </button>
+      </div>
+
+      <!-- Theme Selector -->
+      <select id="theme-select" class="theme-dropdown" title="Choose Resume Theme">
+        <option value="modern">Theme: Modern Tech</option>
+        <option value="classic">Theme: Classic Executive Serif</option>
+        <option value="academic">Theme: Academic Scholarly</option>
+        <option value="minimal">Theme: Minimalist Nordic</option>
+        <option value="creative">Theme: Creative Split</option>
+      </select>
+
+      <!-- Primary Color Accent -->
+      <div class="color-picker-wrap" title="Accent Color">
+        <input type="color" id="primary-color-input" class="color-input" value="#0ea5e9">
+      </div>
+
+      <!-- Import Button & Hidden File Input -->
+      <input type="file" id="file-import-input" style="display:none" accept="*/*">
+      <button type="button" id="btn-import-file" class="btn-header" title="Import ANY File (.pdf, .docx, .txt, .md, .json, .yaml, .bib, .html, etc.)">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <span>Import File</span>
+      </button>
+
+      <!-- Export Dropdown -->
+      <select id="export-dropdown" class="theme-dropdown" title="Export Resume in Multiple Formats">
+        <option value="" disabled selected>Export As...</option>
+        <option value="pdf">Vector PDF (Print)</option>
+        <option value="yaml">YAML (RenderCV)</option>
+        <option value="json">JSON Resume</option>
+        <option value="md">Markdown (LapisCV)</option>
+        <option value="bib">BibTeX Citations</option>
+        <option value="html">Standalone Web HTML</option>
+      </select>
+
+      <!-- Quick Action Print / PDF -->
+      <button type="button" id="btn-quick-pdf" class="btn-header primary" title="Generate Vector PDF / Print">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        <span>Export PDF</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ================= App Workspace ================= -->
+  <main class="app-workspace">
+    
+    <!-- Left Editor Pane -->
+    <section class="app-editor-pane">
+      <!-- Navigation Tabs -->
+      <nav class="editor-nav-tabs">
+        <button type="button" class="nav-tab-btn active" data-tab="form">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          <span>Visual Form</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="dnd">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 3 21 3 21 8"></polyline>
+            <line x1="4" y1="20" x2="21" y2="3"></line>
+            <polyline points="21 16 21 21 16 21"></polyline>
+            <line x1="15" y1="15" x2="21" y2="21"></line>
+            <line x1="4" y1="4" x2="9" y2="9"></line>
+          </svg>
+          <span>Reorder</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="code">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <span>Resume as Code</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="ats">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          <span>ATS Matcher</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="ai">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          </svg>
+          <span>AI Optimizer</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="academic">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+          </svg>
+          <span>Citations</span>
+        </button>
+        <button type="button" class="nav-tab-btn" data-tab="settings">
+          <svg class="nav-tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="21" x2="4" y2="14"></line>
+            <line x1="4" y1="10" x2="4" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12" y2="3"></line>
+            <line x1="20" y1="21" x2="20" y2="16"></line>
+            <line x1="20" y1="12" x2="20" y2="3"></line>
+            <line x1="1" y1="14" x2="7" y2="14"></line>
+            <line x1="9" y1="8" x2="15" y2="8"></line>
+            <line x1="17" y1="16" x2="23" y2="16"></line>
+          </svg>
+          <span>Settings</span>
+        </button>
+      </nav>
+
+      <!-- Tab Content Area -->
+      <div class="editor-content-area">
+        
+        <!-- Tab 1: Visual Form Builder -->
+        <div id="tab-form" class="tab-panel active">
+          
+          <!-- Basics Info Section -->
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Personal Details</span>
+              </span>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" id="f-name" class="form-input" placeholder="e.g. Dr. Alex J. Rivera">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Headline / Title</label>
+                <input type="text" id="f-label" class="form-input" placeholder="e.g. Staff AI Systems Engineer">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" id="f-email" class="form-input" placeholder="alex@cs.stanford.edu">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="text" id="f-phone" class="form-input" placeholder="+1 (555) 382-9104">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Location</label>
+                <input type="text" id="f-location" class="form-input" placeholder="San Francisco, CA">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Website / Portfolio</label>
+                <input type="url" id="f-url" class="form-input" placeholder="https://alexrivera.dev">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Professional Summary</label>
+              <textarea id="f-summary" class="form-textarea" rows="3" placeholder="High-impact career summary..."></textarea>
+            </div>
+          </div>
+
+          <!-- Experience Section -->
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <span>Work Experience</span>
+              </span>
+            </div>
+            <div id="form-experience-container"></div>
+            <button type="button" id="btn-add-experience" class="btn-add-item">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add Work Experience</span>
+            </button>
+          </div>
+
+          <!-- Projects Section -->
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <span>Key Projects & Systems</span>
+              </span>
+            </div>
+            <div id="form-projects-container"></div>
+            <button type="button" id="btn-add-project" class="btn-add-item">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add Project</span>
+            </button>
+          </div>
+
+          <!-- Education Section -->
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span>Education</span>
+              </span>
+            </div>
+            <div id="form-education-container"></div>
+            <button type="button" id="btn-add-education" class="btn-add-item">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add Education</span>
+            </button>
+          </div>
+
+          <!-- Skills Section -->
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Skills & Competencies</span>
+              </span>
+            </div>
+            <div id="form-skills-container"></div>
+            <button type="button" id="btn-add-skill" class="btn-add-item">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add Skill Category</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Tab 2: Drag & Drop Sections (dnd-resume style) -->
+        <div id="tab-dnd" class="tab-panel">
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+                <span>Layout Hierarchy & Visibility</span>
+              </span>
+            </div>
+            <div id="dnd-section-container"></div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Resume-as-Code (RenderCV & LapisCV style) -->
+        <div id="tab-code" class="tab-panel">
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                <span>Code Synchronizer</span>
+              </span>
+              <div class="code-editor-tabs">
+                <button type="button" id="btn-code-tab-yaml" class="btn-header primary">YAML (RenderCV)</button>
+                <button type="button" id="btn-code-tab-md" class="btn-header">Markdown (LapisCV)</button>
+              </div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span style="font-size:0.78rem; color:var(--text-dim);">Edit structured code directly. Synchronize to update live preview.</span>
+              <button type="button" id="btn-sync-code" class="btn-header primary" style="padding:4px 10px; font-size:0.75rem;">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                </svg>
+                <span>Sync to Resume</span>
+              </button>
+            </div>
+            <textarea id="code-editor-area" class="code-textarea" spellcheck="false"></textarea>
+          </div>
+        </div>
+
+        <!-- Tab 4: ATS Matcher (Resume-Matcher style) -->
+        <div id="tab-ats" class="tab-panel">
+          <div class="form-section ats-container">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="2"></circle>
+                </svg>
+                <span>ATS Job Description Matcher</span>
+              </span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:0;">
+              Paste a target Job Description to simulate ATS parsing, calculate keyword match score, and surface missing skills.
+            </p>
+            
+            <!-- Quick Presets -->
+            <div class="ats-preset-pills">
+              <span style="font-size:0.74rem; color:var(--text-muted); align-self:center;">Target Roles:</span>
+              <button type="button" class="btn-preset-jd" data-preset="ai_systems">Frontier AI Systems Lab</button>
+              <button type="button" class="btn-preset-jd" data-preset="fullstack_lead">Lead Full-Stack Tech</button>
+              <button type="button" class="btn-preset-jd" data-preset="ml_research">Research Scientist</button>
+            </div>
+
+            <textarea id="ats-jd-input" class="form-textarea" style="height:120px;" placeholder="Paste Job Description requirements here..."></textarea>
+            <button type="button" id="btn-run-ats" class="btn-header primary" style="width:100%; justify-content:center;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <span>Scan & Score Against Resume</span>
+            </button>
+
+            <!-- Results Card -->
+            <div id="ats-results-box" style="display:none;">
+              <div class="ats-score-card">
+                <div id="ats-gauge-circle" class="ats-gauge" style="--score: 85;">
+                  <span id="ats-score-text" class="ats-score-num">85%</span>
+                  <span class="ats-score-label">Match</span>
+                </div>
+                <div class="ats-score-summary">
+                  <h3 id="ats-match-level">Strong ATS Match</h3>
+                  <p id="ats-match-desc">Your resume contains strong overlap with core systems requirements.</p>
+                </div>
+              </div>
+
+              <!-- Keywords Breakdown -->
+              <div style="margin-top:14px;">
+                <div style="font-size:0.8rem; font-weight:700; color:#10b981; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Matched Skills (<span id="ats-matched-count">0</span>)</span>
+                </div>
+                <div id="ats-matched-cloud" class="keywords-cloud"></div>
+              </div>
+
+              <div style="margin-top:14px;">
+                <div style="font-size:0.8rem; font-weight:700; color:#f43f5e; margin-bottom:6px; display:flex; align-items:center; gap:6px;">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                  </svg>
+                  <span>Missing Recommended Skills (<span id="ats-missing-count">0</span>) — <em style="font-weight:400; opacity:0.85;">click any to add</em></span>
+                </div>
+                <div id="ats-missing-cloud" class="keywords-cloud"></div>
+              </div>
+
+              <!-- ATS Audit Checklist -->
+              <div style="margin-top:16px;">
+                <div style="font-size:0.82rem; font-weight:700; color:var(--text-bright); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                  <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  </svg>
+                  <span>ATS Format & Quality Audit</span>
+                </div>
+                <div id="ats-audit-list" class="audit-checklist"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 5: AI Assistant & Bullet Polisher (JadeAI style) -->
+        <div id="tab-ai" class="tab-panel">
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+                </svg>
+                <span>AI Bullet Optimizer</span>
+              </span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 12px 0;">
+              Rewrites bullets using Google's XYZ formula (<em>"Accomplished [X] measured by [Y] by doing [Z]"</em>) with high-impact power verbs.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">Draft Bullet Point to Polish</label>
+              <textarea id="ai-bullet-input" class="form-textarea" rows="3" placeholder="e.g. Worked on distributed inference pipeline to make models faster"></textarea>
+            </div>
+
+            <div class="form-row" style="margin-top:8px;">
+              <div class="form-group">
+                <label class="form-label">Role Focus / Context</label>
+                <input type="text" id="ai-role-context" class="form-input" placeholder="e.g. AI Systems / Distributed Computing">
+              </div>
+            </div>
+
+            <button type="button" id="btn-generate-ai" class="btn-header primary" style="width:100%; justify-content:center; margin-top:10px;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Generate 3 XYZ Variations</span>
+            </button>
+
+            <!-- AI Variations Container -->
+            <div id="ai-variations-container" class="ai-variations-list"></div>
+
+            <!-- Local Docker & BYOK LLM Settings -->
+            <details style="margin-top:20px; font-size:0.8rem; color:var(--text-dim);" open>
+              <summary style="cursor:pointer; font-weight:600; color:var(--accent-blue); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                  <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                  <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                  <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                </svg>
+                <span>Local Docker (Ollama) & LLM Settings</span>
+              </summary>
+              <div style="background:var(--bg-input); padding:14px; border-radius:8px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:10px;">
+                
+                <!-- Quick Preset Buttons -->
+                <div>
+                  <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:6px;">Presets:</div>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    <button type="button" id="btn-preset-local-docker" class="btn-preset-jd" style="border-color:#0ea5e9; color:#0ea5e9;">
+                      Local Docker (Ollama)
+                    </button>
+                    <button type="button" id="btn-preset-vps-docker" class="btn-preset-jd">
+                      Remote VPS Docker
+                    </button>
+                    <button type="button" id="btn-preset-groq" class="btn-preset-jd">
+                      Groq Cloud
+                    </button>
+                    <button type="button" id="btn-preset-openai" class="btn-preset-jd">
+                      OpenAI
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Base URL (OpenAI-compatible)</label>
+                  <input type="text" id="byok-base-url" class="form-input" placeholder="http://localhost:11434/v1" value="http://localhost:11434/v1">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Model Name</label>
+                    <input type="text" id="byok-model" class="form-input" placeholder="llama3.2:1b" value="llama3.2:1b">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">API Key (optional for local Ollama)</label>
+                    <input type="password" id="byok-key" class="form-input" placeholder="ollama (or VPS secret token)" value="ollama">
+                  </div>
+                </div>
+
+                <!-- Test Connection Button -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                  <button type="button" id="btn-test-llm-connection" class="btn-header" style="padding:5px 12px; font-size:0.75rem;">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                      <polyline points="15 3 21 3 21 9"></polyline>
+                      <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                    <span>Test LLM Connection</span>
+                  </button>
+                  <span id="llm-connection-status" style="font-size:0.75rem; color:var(--text-dim);">Ready (Local Docker active)</span>
+                </div>
+
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Tab 6: Academic CV (Hugo Blox style) -->
+        <div id="tab-academic" class="tab-panel">
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                </svg>
+                <span>Academic & Research Citations</span>
+              </span>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-dim); margin:0 0 12px 0;">
+              Import standard BibTeX citations, peer-reviewed journals, preprints, and research grants.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">Paste BibTeX Citations (@article, @inproceedings)</label>
+              <textarea id="bibtex-paste-input" class="form-textarea" style="height:110px; font-family:'JetBrains Mono', monospace;" placeholder="@article{rivera2024,
+  title={Asynchronous KV-Cache Compression},
+  author={Rivera, Alex J.},
+  journal={NeurIPS},
+  year={2024}
+}"></textarea>
+            </div>
+            <button type="button" id="btn-parse-bibtex" class="btn-header primary" style="margin-top:8px; width:100%; justify-content:center;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Parse & Append to Publications</span>
+            </button>
+
+            <!-- Publications list editor -->
+            <div style="margin-top:20px;">
+              <span class="form-section-title" style="margin-bottom:10px;">Registered Publications (<span id="pub-count-badge">0</span>)</span>
+              <div id="form-publications-container"></div>
+              <button type="button" id="btn-add-publication" class="btn-add-item">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Add Publication Manually</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 7: Settings & Typographic Controls (Oh-My-CV style) -->
+        <div id="tab-settings" class="tab-panel">
+          <div class="form-section">
+            <div class="form-section-head">
+              <span class="form-section-title">
+                <svg class="section-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+                <span>Page Geometry & Typography</span>
+              </span>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Font Family</label>
+              <select id="font-family-select" class="theme-dropdown" style="width:100%;">
+                <option value="Plus Jakarta Sans">Plus Jakarta Sans (Precision Geometric)</option>
+                <option value="Outfit">Outfit (Display & Clean Tech)</option>
+                <option value="Merriweather">Merriweather (Classic Editorial Serif)</option>
+                <option value="Lora">Lora (Academic Scholarly Serif)</option>
+                <option value="JetBrains Mono">JetBrains Mono (Developer Monospace)</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Base Font Size: <span id="font-size-val">9.5pt</span></label>
+              <input type="range" id="font-size-slider" min="8" max="12" step="0.5" value="9.5" style="width:100%;">
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Line Spacing: <span id="line-height-val">1.45</span></label>
+              <input type="range" id="line-height-slider" min="1.2" max="1.8" step="0.05" value="1.45" style="width:100%;">
+            </div>
+
+            <div class="form-group" style="margin-bottom:14px;">
+              <label class="form-label">Page Margins: <span id="margin-val">14mm</span></label>
+              <input type="range" id="margin-slider" min="8" max="24" step="1" value="14" style="width:100%;">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Paper Format</label>
+                <select id="paper-size-select" class="theme-dropdown">
+                  <option value="a4">A4 (210 × 297 mm)</option>
+                  <option value="letter">US Letter (8.5 × 11 in)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border-subtle);">
+              <button type="button" id="btn-reset-profile" class="btn-header" style="color:var(--accent-rose); border-color:rgba(244,63,94,0.4); width:100%; justify-content:center;">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="1 4 1 10 7 10"></polyline>
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                </svg>
+                <span>Reset to Default Sample Profile</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Right Live Dual-Pane Preview -->
+    <section class="app-preview-pane">
+      <div class="preview-toolbar">
+        <div class="preview-zoom-controls">
+          <button type="button" id="btn-zoom-out" class="btn-zoom" title="Zoom Out">−</button>
+          <span id="zoom-level-label" class="zoom-level-text">100%</span>
+          <button type="button" id="btn-zoom-in" class="btn-zoom" title="Zoom In">+</button>
+          <button type="button" id="btn-zoom-fit" class="btn-zoom" title="Fit to Screen">Fit</button>
+        </div>
+        <div style="font-size:0.75rem; color:var(--text-dim); display:flex; align-items:center; gap:8px;">
+          <span class="live-indicator-dot"></span>
+          <span>Live Real-time Sync Active</span>
+        </div>
+      </div>
+
+      <div class="preview-scroll-viewport" id="preview-scroll-container">
+        <div class="preview-wrapper" id="preview-wrapper">
+          <div id="resume-preview-container">
+            <!-- Dynamic Resume or Portfolio rendered here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Fullscreen Drag & Drop Overlay -->
+  <div id="fullscreen-drag-overlay" class="fullscreen-drag-overlay">
+    <div class="fullscreen-drag-title">
+      <svg class="drag-overlay-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+      <span>Drop Any File to Import</span>
+    </div>
+    <div class="fullscreen-drag-sub">Supports PDF, DOCX, TXT, Markdown, YAML, JSON Resume, BibTeX, HTML & Images</div>
+  </div>
+
+  <!-- Universal Import Modal -->
+  <div id="import-modal-overlay" class="import-modal-overlay">
+    <div class="import-modal">
+      <div class="import-modal-head">
+        <div class="import-modal-title">
+          <svg class="modal-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <line x1="9" y1="15" x2="12" y2="12"></line>
+            <line x1="15" y1="15" x2="12" y2="12"></line>
+          </svg>
+          <span>Universal Document & Resume Importer</span>
+        </div>
+        <button type="button" id="btn-close-import-modal" class="btn-close-modal">✕</button>
+      </div>
+      <div class="import-modal-body">
+        <div id="modal-dropzone" class="import-dropzone">
+          <div class="dropzone-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="dropzone-text">Click or drag & drop ANY file here</div>
+          <div class="dropzone-subtext">PDF, DOCX, Markdown, Text, YAML, JSON Resume, BibTeX, HTML, Images</div>
+          <div class="file-type-badges">
+            <span class="file-badge">.PDF</span>
+            <span class="file-badge">.DOCX</span>
+            <span class="file-badge">.TXT</span>
+            <span class="file-badge">.MD</span>
+            <span class="file-badge">.YAML</span>
+            <span class="file-badge">.JSON</span>
+            <span class="file-badge">.BIB</span>
+            <span class="file-badge">.HTML</span>
+            <span class="file-badge">.PNG/.JPG</span>
+          </div>
+        </div>
+
+        <!-- File Parse Preview Section -->
+        <div id="import-preview-section" style="display:none;" class="import-preview-box">
+          <div style="font-size:0.85rem; font-weight:700; color:#0ea5e9; margin-bottom:10px;">
+            Document Analysis: <span id="import-file-name" style="color:var(--text-bright);"></span>
+          </div>
+          <div class="preview-stat-grid">
+            <div class="preview-stat">
+              <div class="stat-label">Candidate Name</div>
+              <div id="preview-stat-name" class="stat-val">—</div>
+            </div>
+            <div class="preview-stat">
+              <div class="stat-label">Email Detected</div>
+              <div id="preview-stat-email" class="stat-val">—</div>
+            </div>
+            <div class="preview-stat">
+              <div class="stat-label">Phone Detected</div>
+              <div id="preview-stat-phone" class="stat-val">—</div>
+            </div>
+            <div class="preview-stat">
+              <div class="stat-label">Experience Entries</div>
+              <div id="preview-stat-exp" class="stat-val">0</div>
+            </div>
+            <div class="preview-stat">
+              <div class="stat-label">Skills Extracted</div>
+              <div id="preview-stat-skills" class="stat-val">0</div>
+            </div>
+          </div>
+
+          <div class="import-strategy-toggle">
+            <label class="strategy-label">
+              <input type="radio" name="import-strategy" value="replace" checked>
+              <span><strong>Replace Current Resume</strong> (load fresh profile)</span>
+            </label>
+            <label class="strategy-label">
+              <input type="radio" name="import-strategy" value="merge">
+              <span><strong>Merge with Current Resume</strong> (append experience & skills)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Paste Raw Text Option -->
+        <details style="font-size:0.82rem; color:var(--text-dim);">
+          <summary style="cursor:pointer; color:var(--accent-blue); font-weight:600; display:flex; align-items:center; gap:6px;">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            </svg>
+            <span>Or Paste Raw Text from Any Resume / CV</span>
+          </summary>
+          <div style="margin-top:10px;">
+            <textarea id="import-raw-paste" class="form-textarea" rows="6" placeholder="Paste raw text, LinkedIn profile text, or CV content here..."></textarea>
+            <button type="button" id="btn-parse-pasted-text" class="btn-header primary" style="margin-top:8px; width:100%; justify-content:center;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Parse Pasted Text</span>
+            </button>
+          </div>
+        </details>
+      </div>
+      <div class="import-modal-foot">
+        <button type="button" id="btn-cancel-import" class="btn-header">Cancel</button>
+        <button type="button" id="btn-confirm-import" class="btn-header primary" disabled>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Import into Resume</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Application Script -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
